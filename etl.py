@@ -3,7 +3,7 @@ from sql_queries import *
 import create_tables as setup
 import numpy as np
 from create_tables import *
-from data_file_processor import DataFileProcessor
+from extract.data_file_processor import DataFileProcessor
 
 DEFAULT_NA_REPLACER = np.nan
 
