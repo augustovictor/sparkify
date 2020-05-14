@@ -39,7 +39,7 @@ class DataFileProcessor:
 
     def _print_processing_progress(self, i, num_files):
         """
-        Prints processing progress
+        Encapsulates how processing progress is printed
         """
 
         print('{}/{} files processed.'.format(i, num_files))
