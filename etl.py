@@ -1,12 +1,9 @@
-import os
-import glob
-import psycopg2
 import pandas as pd
 from sql_queries import *
 import create_tables as setup
-import io
 import numpy as np
 from create_tables import *
+from data_file_processor import DataFileProcessor
 
 DEFAULT_NA_REPLACER = np.nan
 
@@ -91,59 +88,19 @@ def process_log_file(cur, filepath):
         else:
             songid, artistid = None, None
 
-
 def process_data(cur, conn, filepath, func, filepath_pattern):
     """
     Orchestrates processing of files found in a given filepath
     """
+    data_file_processor = DataFileProcessor(cur, conn, filepath, func, filepath_pattern)
 
-    all_files = _get_files_in(filepath, filepath_pattern)
+    all_files = data_file_processor.get_files_in(filepath, filepath_pattern)
 
     total_files_found = len(all_files)
 
-    _print_files_count_for(filepath, total_files_found)
+    data_file_processor.print_files_count_for(filepath, total_files_found)
 
-    _process_files(all_files, conn, cur, func, total_files_found)
-
-
-def _process_files(all_files, conn, cur, func, num_files):
-    """
-    Processes given files
-    """
-
-    for i, datafile in enumerate(all_files, 1):
-        func(cur, datafile)
-        conn.commit()
-        _print_processing_progress(i, num_files)
-
-
-def _print_processing_progress(i, num_files):
-    """
-    Prints processing progress
-    """
-
-    print('{}/{} files processed.'.format(i, num_files))
-
-
-def _print_files_count_for(filepath, num_files):
-    """
-    Encapsulates how found filepaths are formatted and printed
-    """
-
-    print('{} files found in {}'.format(num_files, filepath))
-
-
-def _get_files_in(filepath, filepath_pattern):
-    """
-    Returns all file paths that match a given pattern
-    """
-    all_files = []
-    for root, dirs, files in os.walk(filepath):
-        files = glob.glob(os.path.join(root, filepath_pattern))
-        for f in files:
-            all_files.append(os.path.abspath(f))
-    return all_files
-
+    data_file_processor.process_files(all_files, conn, cur, func, total_files_found)
 
 def main():
     """
