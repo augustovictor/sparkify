@@ -92,33 +92,72 @@ def process_log_file(cur, filepath):
             songid, artistid = None, None
 
 
-def process_data(cur, conn, filepath, func):
-    # get all files matching extension from directory
-    all_files = []
-    for root, dirs, files in os.walk(filepath):
-        files = glob.glob(os.path.join(root,'*.json'))
-        for f in files :
-            all_files.append(os.path.abspath(f))
+def process_data(cur, conn, filepath, func, filepath_pattern):
+    """
+    Orchestrates processing of files found in a given filepath
+    """
 
-    # get total number of files found
-    num_files = len(all_files)
-    print('{} files found in {}'.format(num_files, filepath))
+    all_files = _get_files_in(filepath, filepath_pattern)
 
-    # iterate over files and process
+    total_files_found = len(all_files)
+
+    _print_files_count_for(filepath, total_files_found)
+
+    _process_files(all_files, conn, cur, func, total_files_found)
+
+
+def _process_files(all_files, conn, cur, func, num_files):
+    """
+    Processes given files
+    """
+
     for i, datafile in enumerate(all_files, 1):
         func(cur, datafile)
         conn.commit()
-        print('{}/{} files processed.'.format(i, num_files))
+        _print_processing_progress(i, num_files)
+
+
+def _print_processing_progress(i, num_files):
+    """
+    Prints processing progress
+    """
+
+    print('{}/{} files processed.'.format(i, num_files))
+
+
+def _print_files_count_for(filepath, num_files):
+    """
+    Encapsulates how found filepaths are formatted and printed
+    """
+
+    print('{} files found in {}'.format(num_files, filepath))
+
+
+def _get_files_in(filepath, filepath_pattern):
+    """
+    Returns all file paths that match a given pattern
+    """
+    all_files = []
+    for root, dirs, files in os.walk(filepath):
+        files = glob.glob(os.path.join(root, filepath_pattern))
+        for f in files:
+            all_files.append(os.path.abspath(f))
+    return all_files
 
 
 def main():
+    """
+    - Runs create_tables.py(DDLs) script to reset database state
+    - Manages a connection with the database
+    - Processes data files
+    """
     setup.main()
     
     conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
     cur = conn.cursor()
 
-    process_data(cur, conn, filepath='data/song_data', func=process_song_file)
-    process_data(cur, conn, filepath='data/log_data', func=process_log_file)
+    process_data(cur, conn, filepath='data/song_data', func=process_song_file, filepath_pattern="*.json")
+    process_data(cur, conn, filepath='data/log_data', func=process_log_file, filepath_pattern="*.json")
 
     conn.close()
 
