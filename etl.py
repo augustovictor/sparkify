@@ -1,9 +1,12 @@
 import pandas as pd
+
+from files_processor import FilesProcessor
 from sql_statements import *
 import create_tables as setup
 import numpy as np
 from create_tables import *
-from file_processor import FileProcessor
+from file_paths_appender import FilePathsAppender
+from time_formatter import TimeFormatter
 
 DEFAULT_NA_REPLACER = np.nan
 
@@ -13,24 +16,13 @@ def process_song_file(cur, filepath):
     df = pd.read_json(filepath, lines=True)
 
     # clean data
-    df.replace('', np.nan, inplace=True)
-    df.fillna(np.nan, inplace=True)
-    df.dropna(
-        axis='index',
-        how='any',
-        subset=[
-            'artist_id',
-            'song_id',
-            'duration'],
-        inplace=True)
+    df = get_cleaned_song_data(df)
 
-    # insert artist record
     artist_data = df[['artist_id',
                       'artist_name',
                       'artist_location',
                       'artist_latitude',
                       'artist_longitude']].values[0]
-    cur.execute(artist_table_insert, artist_data)
 
 #     artist_data = df[['artist_id', 'artist_name', 'artist_location', 'artist_latitude', 'artist_longitude']]
 #     artist_data.rename(columns={'artist_name': 'name', 'artist_location': 'location', 'artist_latitude': 'latitude'})
@@ -42,9 +34,13 @@ def process_song_file(cur, filepath):
 #     output.seek(0)
 #     cur.copy_from(output, 'artist', columns=('artist_id', 'name', 'location', 'latitude', 'longitude'))
 
-#     insert song record
     song_data = df[['song_id', 'title', 'artist_id', 'year', 'duration']].values.tolist()[
         0]
+
+    # insert artist record
+    cur.execute(artist_table_insert, artist_data)
+
+    # insert song record
     cur.execute(song_table_insert, song_data)
 
 #     song_data = df[['song_id', 'title', 'artist_id', 'year', 'duration']]
@@ -53,6 +49,17 @@ def process_song_file(cur, filepath):
 #     output.seek(0)
 #     cur.copy_from(output, 'song')
 
+def get_cleaned_song_data(df):
+    return df.replace('', DEFAULT_NA_REPLACER)\
+        .fillna(DEFAULT_NA_REPLACER)\
+        .dropna(
+        axis='index',
+        how='any',
+        subset=[
+            'artist_id',
+            'song_id',
+            'duration'],
+    )
 
 def process_log_file(cur, filepath):
     """
@@ -69,7 +76,7 @@ def process_log_file(cur, filepath):
 
     user_df = df[['userId', 'firstName', 'lastName', 'gender', 'level']]
 
-    insert_users(cur, user_df)
+    insert_statements(cur, user_df, user_table_insert)
 
     insert_songplays(cur, df)
 
@@ -79,49 +86,25 @@ def insert_datetime(cur, time_df):
     Persists datetime
     """
 
-    formatted_time_df = format_datetime(time_df)
+    formatted_time_df = TimeFormatter.format_datetime(time_df)
 
-    for i, row in formatted_time_df.iterrows():
-        cur.execute(time_table_insert, list(row))
-
+    insert_statements(cur, formatted_time_df, time_table_insert)
 
 def clean_logfile_data(df):
     """
     Cleans logfile data to fill nan values with numpy.nan
     Drops rows without necessary attributes for analysis
     """
-    return df.fillna(np.nan).dropna(axis='index', how='any',
+    return df.fillna(DEFAULT_NA_REPLACER).dropna(axis='index', how='any',
                                     subset=['artist', 'length', 'song'])
 
-
-def format_datetime(df):
+def insert_statements(cur, df, statement):
     """
-    Formats datetime
-    Returns new DataFrame with "start_time", "hour", "day", "weekofyear", "month", "year", "weekday"
+    Executes given statement for all rows in provided dataframe
     """
 
-    t = pd.to_datetime(df['ts'], unit='ms')
-
-    time_data = pd.concat(
-        [t, t.dt.hour, t.dt.day, t.dt.weekofyear, t.dt.month, t.dt.year,
-         t.dt.weekday], axis=1)
-
-    column_labels = (
-        "start_time", "hour", "day", "weekofyear", "month", "year", "weekday")
-
-    time_df = pd.DataFrame(data=time_data.values, columns=column_labels)
-
-    return time_df
-
-
-def insert_users(cur, user_df):
-    """
-    Inserts users into DB
-    """
-
-    for i, row in user_df.iterrows():
-        cur.execute(user_table_insert, row)
-
+    for i, row in df.iterrows():
+        cur.execute(statement, list(row))
 
 def insert_songplays(cur, df):
     """
@@ -151,22 +134,20 @@ def insert_songplays(cur, df):
 
             cur.execute(songplay_table_insert, songplay_data)
 
-
 def process_data(cur, conn, filepath, func, filepath_pattern):
     """
     Orchestrates processing of files found in a given filepath
     """
-    data_file_processor = FileProcessor(
-        cur, conn, filepath, func, filepath_pattern)
+    data_file_processor = FilePathsAppender(
+        cur, conn, filepath, filepath_pattern)
 
-    all_files = data_file_processor.get_files_in(filepath, filepath_pattern)
+    all_files = data_file_processor.get_files_in()
 
     total_files_found = len(all_files)
 
     data_file_processor.print_files_count_for(filepath, total_files_found)
 
-    data_file_processor.process_files(
-        all_files, conn, cur, func, total_files_found)
+    FilesProcessor(all_files, conn, cur, func, total_files_found).process_files()
 
 
 def main():

@@ -21,10 +21,12 @@ make etl
 ├── create_tables.py # Database setup (DDL)
 ├── etl.ipynb # Jupyter notebook for etl analysis
 ├── etl.py # Etl pipeline for song data and logs analysis
-├── file_processor.py # Fetches and processes files
+├── file_paths_appender.py # Fetches all file paths
+├── file_processor.py # Processes files
 ├── requirements.txt # Python dependencies
 ├── sql_statements.py # Database DML and DQL statements
 ├──  test.ipynb # Jupyter notebook for ETL results analysis
+├──  time_formatter.py # Formats time to "start_time", "hour", "day", "weekofyear", "month", "year", "weekday"
 └── data # Sparkify songs and events log data
     ├── log_data # Events log
     │   └── 2018
