@@ -95,8 +95,6 @@ All `None` values were replaced with `numpy.nan`;
 
 Removed rows from logs dataframe with `dropna` where any of the following columns were `nan`: `artist`, `song`, `length`, since those were the columns used to identify `artist` and `song` in postgres tables. This removed ~16% of log events;
 
-
-
 ### Load
 
 Data is loaded into the following postgres tables:
@@ -106,17 +104,11 @@ artist - Artist dimension table
 song - Song dimension table
 user - User dimension table
 
-### Todo
-fillna
-Insert data using the COPY command to bulk insert log files instead of using INSERT on one row at a time
-Add data quality checks
-Create a dashboard for analytic queries on your new database
-
 ## Project criteria
 
 ### Table creation
-- [ ] Table creation script runs without errors: The script, create_tables.py, runs in the terminal without errors. The script successfully connects to the Sparkify database, drops any tables if they exist, and creates the tables.
-- [ ] Fact and dimensional tables for a star schema are properly defined: CREATE statements in sql_queries.py specify all columns for each of the five tables with the right data types and conditions
+- [x] Table creation script runs without errors: The script, create_tables.py, runs in the terminal without errors. The script successfully connects to the Sparkify database, drops any tables if they exist, and creates the tables.
+- [x] Fact and dimensional tables for a star schema are properly defined: CREATE statements in sql_queries.py specify all columns for each of the five tables with the right data types and conditions
 
 ### ETL
 - [x] ETL script runs without errors: The script, etl.py, runs in the terminal without errors. The script connects to the Sparkify database, extracts and processes the log_data and song_data, and loads data into the five tables.
