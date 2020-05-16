@@ -24,16 +24,6 @@ def process_song_file(cur, filepath):
                       'artist_latitude',
                       'artist_longitude']].values[0]
 
-#     artist_data = df[['artist_id', 'artist_name', 'artist_location', 'artist_latitude', 'artist_longitude']]
-#     artist_data.rename(columns={'artist_name': 'name', 'artist_location': 'location', 'artist_latitude': 'latitude'})
-#     artist_data.head(0).to_sql('artist', conn, if_exists='append', index=False)
-#     artist_data.columns = ('artist_id', 'name', 'location', 'latitude', 'longitude')
-#     print(artist_data.columns)
-#     output = io.StringIO()
-#     artist_data.to_csv(output, sep=',', header=False, index=False)
-#     output.seek(0)
-#     cur.copy_from(output, 'artist', columns=('artist_id', 'name', 'location', 'latitude', 'longitude'))
-
     song_data = df[['song_id', 'title', 'artist_id', 'year', 'duration']].values.tolist()[
         0]
 
@@ -42,12 +32,6 @@ def process_song_file(cur, filepath):
 
     # insert song record
     cur.execute(song_table_insert, song_data)
-
-#     song_data = df[['song_id', 'title', 'artist_id', 'year', 'duration']]
-#     output = io.StringIo()
-#     song_data.to_csv(output, sep='\t', header=False, index=False)
-#     output.seek(0)
-#     cur.copy_from(output, 'song')
 
 
 def get_cleaned_song_data(df):
