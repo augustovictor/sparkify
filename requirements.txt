@@ -1,5 +1,6 @@
 appnope==0.1.0
 attrs==19.3.0
+autopep8==1.5.2
 backcall==0.1.0
 bleach==3.1.5
 certifi==2020.4.5.1
@@ -31,6 +32,7 @@ packaging==20.3
 pandas==1.0.3
 pandocfilters==1.4.2
 parso==0.7.0
+pep8==1.7.1
 pexpect==4.8.0
 pickleshare==0.7.5
 prettytable==0.7.2
@@ -38,6 +40,7 @@ prometheus-client==0.7.1
 prompt-toolkit==3.0.5
 psycopg2-binary==2.8.5
 ptyprocess==0.6.0
+pycodestyle==2.6.0
 Pygments==2.6.1
 pyparsing==2.4.7
 pyrsistent==0.16.0
