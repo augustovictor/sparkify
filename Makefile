@@ -5,4 +5,4 @@ etl:
 	python3 etl.py
 
 autopep8:
-	autopep8 --in-place --aggressive --aggressive etl.py
+	autopep8 --in-place --aggressive --aggressive *.py
