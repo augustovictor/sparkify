@@ -1,6 +1,7 @@
 import os
 import glob
 
+
 class FilePathsAppender:
     def __init__(self, cur, conn, filepath, filepath_pattern):
         self.cur = cur

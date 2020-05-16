@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 class TimeFormatter:
     @staticmethod
     def format_datetime(df):
@@ -15,7 +16,13 @@ class TimeFormatter:
              t.dt.weekday], axis=1)
 
         column_labels = (
-            "start_time", "hour", "day", "weekofyear", "month", "year", "weekday")
+            "start_time",
+            "hour",
+            "day",
+            "weekofyear",
+            "month",
+            "year",
+            "weekday")
 
         time_df = pd.DataFrame(data=time_data.values, columns=column_labels)
 

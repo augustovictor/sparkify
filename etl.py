@@ -49,6 +49,7 @@ def process_song_file(cur, filepath):
 #     output.seek(0)
 #     cur.copy_from(output, 'song')
 
+
 def get_cleaned_song_data(df):
     return df.replace('', DEFAULT_NA_REPLACER)\
         .fillna(DEFAULT_NA_REPLACER)\
@@ -60,6 +61,7 @@ def get_cleaned_song_data(df):
             'song_id',
             'duration'],
     )
+
 
 def process_log_file(cur, filepath):
     """
@@ -90,13 +92,16 @@ def insert_datetime(cur, time_df):
 
     insert_statements(cur, formatted_time_df, time_table_insert)
 
+
 def clean_logfile_data(df):
     """
     Cleans logfile data to fill nan values with numpy.nan
     Drops rows without necessary attributes for analysis
     """
-    return df.fillna(DEFAULT_NA_REPLACER).dropna(axis='index', how='any',
-                                    subset=['artist', 'length', 'song'])
+    return df.fillna(DEFAULT_NA_REPLACER).dropna(
+        axis='index', how='any', subset=[
+            'artist', 'length', 'song'])
+
 
 def insert_statements(cur, df, statement):
     """
@@ -105,6 +110,7 @@ def insert_statements(cur, df, statement):
 
     for i, row in df.iterrows():
         cur.execute(statement, list(row))
+
 
 def insert_songplays(cur, df):
     """
@@ -134,6 +140,7 @@ def insert_songplays(cur, df):
 
             cur.execute(songplay_table_insert, songplay_data)
 
+
 def process_data(cur, conn, filepath, func, filepath_pattern):
     """
     Orchestrates processing of files found in a given filepath
@@ -147,7 +154,12 @@ def process_data(cur, conn, filepath, func, filepath_pattern):
 
     data_file_processor.print_files_count_for(filepath, total_files_found)
 
-    FilesProcessor(all_files, conn, cur, func, total_files_found).process_files()
+    FilesProcessor(
+        all_files,
+        conn,
+        cur,
+        func,
+        total_files_found).process_files()
 
 
 def main():
