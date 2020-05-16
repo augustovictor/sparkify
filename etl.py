@@ -1,5 +1,5 @@
 import pandas as pd
-from sql_queries import *
+from sql_statements import *
 import create_tables as setup
 import numpy as np
 from create_tables import *

@@ -1,7 +1,7 @@
 import os
 import glob
 
-class DataFileProcessor:
+class FileProcessor:
     def __init__(self, cur, conn, filepath, func, filepath_pattern):
         self.cur = cur
         self.conn = conn
